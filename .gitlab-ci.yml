@@ -582,6 +582,15 @@ obs:odvr:
     - apkg install --build-dep
     - apkg test --test-dep
 
+.pkg_test_user: &pkg_test_user
+  <<: *pkg_test
+  script:
+    # make sure the archive from pkg:make-archive is available
+    - apkg info cache | grep archive/dev
+    - apkg build-dep
+    - sudo -u test apkg install
+    - apkg test --test-dep
+
 .pkg_test_deb: &pkg_test_deb
   <<: *pkg_test
   <<: *pkg_deb_extras
@@ -630,6 +639,10 @@ pkg:fedora-37:
 pkg:alma-9:
   <<: *pkg_test
   image: $CI_REGISTRY/packaging/apkg/full/alma-9
+
+pkg:arch:
+  <<: *pkg_test_user
+  image: $CI_REGISTRY/packaging/apkg/full/arch
 
 # RHEL 8 derivatives would need more work due to *default* python being old
 #pkg:rocky-8:
